@@ -73,8 +73,8 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
 - [x] 5. Checkpoint — verify scaffold and utilities
   - Open `index.html` in a browser and confirm: all four panels are visible, the clock shows the current time, the greeting matches the time of day, the timer shows `25:00`, Start is enabled, Stop is disabled.
 
-- [ ] 6. Implement TaskModule in `js/app.js`
-  - [ ] 6.1 Implement task data helpers and list rendering
+- [x] 6. Implement TaskModule in `js/app.js`
+  - [x] 6.1 Implement task data helpers and list rendering
     - Declare `tasks` array (initially `[]`)
     - Write `validateDescription(str)`: returns `{ valid: false, message: '...' }` for empty/whitespace-only strings and strings over 500 chars; returns `{ valid: true }` otherwise
     - Write `loadTasks()`: calls `Storage.load('tld_tasks')`; if result is a valid array assigns it to `tasks`; otherwise sets `tasks = []`
@@ -83,7 +83,7 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Write `renderTask(task)`: returns a `<li>` with a checkbox (checked = `task.completed`), a `<span>` with strikethrough when completed, an Edit `<button>`, and a Delete `<button>`; each control carries the task `id` as a `data-id` attribute
     - _Requirements: 5.1, 5.4, 5.5, 7.1, 8.5, 9.1, 9.3, 9.4_
 
-  - [ ] 6.2 Implement task CRUD operations
+  - [x] 6.2 Implement task CRUD operations
     - Write `addTask(description)`: validates; on failure shows message in `#task-validation`; on success generates `id = Date.now() + '_' + Math.random()`, pushes `{ id, description: description.trim(), completed: false }`, calls `saveTasks()`, calls `renderList()`, clears `#task-input` and `#task-validation`
     - Write `deleteTask(id)`: splices task from `tasks`, calls `saveTasks()`, calls `renderList()`
     - Write `toggleTask(id)`: flips `completed` on the matching task, calls `saveTasks()`, calls `renderList()`
@@ -93,8 +93,8 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Write `TaskModule.init()`: calls `loadTasks()`, calls `renderList()`, attaches event listeners; call it inside `DOMContentLoaded`
     - _Requirements: 5.2, 5.3, 6.1, 6.2, 6.3, 6.4, 6.5, 6.6, 7.2, 7.3, 7.4, 7.5, 8.1, 8.2, 8.3, 8.4_
 
-- [ ] 7. Implement LinkModule in `js/app.js`
-  - [ ] 7.1 Implement link data helpers and list rendering
+- [x] 7. Implement LinkModule in `js/app.js`
+  - [x] 7.1 Implement link data helpers and list rendering
     - Declare `links` array (initially `[]`)
     - Write `validateUrl(str)`: uses `new URL(str)` inside try/catch; returns `{ valid: false }` if it throws or if `protocol` is not `http:` or `https:`; returns `{ valid: true }` otherwise
     - Write `validateLink(label, url)`: returns `{ valid: false, message: '...' }` for empty/whitespace-only label, empty/whitespace-only URL, URL failing `validateUrl`, label over 100 chars, or URL over 2048 chars; returns `{ valid: true }` otherwise
@@ -103,7 +103,7 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Write `renderLink(link)`: returns a `<div>` containing a `<button>` whose text is `link.label || link.url` and a Delete `<button>`; the open button carries `data-url` and `data-id`; the delete button carries `data-id`
     - _Requirements: 10.1, 10.4, 10.7, 11.2, 12.1, 12.3, 12.5_
 
-  - [ ] 7.2 Implement link CRUD and navigation
+  - [x] 7.2 Implement link CRUD and navigation
     - Write `addLink(label, url)`: validates via `validateLink`; on failure shows message in `#link-validation`; on success generates `id`, pushes `{ id, label: label.trim(), url: url.trim() }`, calls `saveLinks()`, calls `renderLinks()`, clears inputs and `#link-validation`
     - Write `deleteLink(id)`: splices from `links`, calls `saveLinks()`, calls `renderLinks()`
     - Write `openLink(url)`: re-validates via `validateUrl` at click time; on failure shows inline error adjacent to the button; on success calls `window.open(url, '_blank', 'noopener,noreferrer')`
@@ -112,7 +112,7 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Write `LinkModule.init()`: calls `loadLinks()`, calls `renderLinks()`, attaches event listeners; call it inside `DOMContentLoaded`
     - _Requirements: 10.2, 10.3, 10.5, 10.6, 10.8, 11.1, 11.3, 12.2, 12.4_
 
-- [ ] 8. Checkpoint — verify core functionality
+- [x] 8. Checkpoint — verify core functionality
   - Open `index.html` in a browser and confirm: tasks can be added, edited, completed, and deleted; links can be added and deleted; localStorage keys `tld_tasks` and `tld_links` appear in DevTools Application tab after each operation.
 
 - [ ] 9. Apply CSS styling in `css/styles.css`
