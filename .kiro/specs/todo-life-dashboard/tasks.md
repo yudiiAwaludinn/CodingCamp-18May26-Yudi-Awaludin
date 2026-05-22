@@ -115,15 +115,15 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
 - [x] 8. Checkpoint — verify core functionality
   - Open `index.html` in a browser and confirm: tasks can be added, edited, completed, and deleted; links can be added and deleted; localStorage keys `tld_tasks` and `tld_links` appear in DevTools Application tab after each operation.
 
-- [ ] 9. Apply CSS styling in `css/styles.css`
-  - [ ] 9.1 Implement base reset, typography, and CSS custom properties
+- [x] 9. Apply CSS styling in `css/styles.css`
+  - [x] 9.1 Implement base reset, typography, and CSS custom properties
     - Add a CSS reset (`*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }`)
     - Define CSS custom properties on `:root` for color palette, spacing scale, font sizes, and border-radius values
     - Set base `font-family`, `font-size`, `line-height`, and `color` on `body`
     - Ensure all text/background color pairs meet WCAG 2.1 AA contrast (≥4.5:1 for normal text, ≥3:1 for large text)
     - _Requirements: 13.4_
 
-  - [ ] 9.2 Implement responsive layout grid
+  - [x] 9.2 Implement responsive layout grid
     - Style `body` or a `.dashboard` wrapper with CSS Grid or Flexbox to arrange the four panels
     - On narrow viewports (≤600 px): single-column stack
     - On medium viewports (601 px–1024 px): two-column grid
@@ -131,7 +131,7 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Ensure no horizontal scrollbar appears at 320 px viewport width
     - _Requirements: 13.1, 13.5_
 
-  - [ ] 9.3 Style individual panels and components
+  - [x] 9.3 Style individual panels and components
     - Style `#greeting-panel`: large clock display, readable date, prominent greeting text
     - Style `#timer-panel`: large `#timer-display` (monospace font), clearly labeled control buttons, hidden-by-default `#timer-indicator` with a visible "Session complete" state
     - Style `#task-panel`: input + button row, task list items with checkbox, strikethrough for completed tasks, empty-state message, inline validation message
@@ -139,7 +139,7 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Style `.toast` (Notify): fixed top-center position, readable contrast, close button, z-index above all content
     - _Requirements: 13.1, 13.4_
 
-  - [ ] 9.4 Implement focus styles and keyboard accessibility
+  - [x] 9.4 Implement focus styles and keyboard accessibility
     - Ensure all interactive elements (`button`, `input`, `a`) have a visible `:focus-visible` outline that meets WCAG 2.1 AA (3:1 contrast against adjacent colors)
     - Do not use `outline: none` without a replacement focus indicator
     - _Requirements: 13.4_
