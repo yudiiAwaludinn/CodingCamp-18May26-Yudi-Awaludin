@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Todo-Life Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+
+    <!-- Greeting Panel: time, date, and contextual greeting -->
+    <section id="greeting-panel">
+      <p id="greeting-text"></p>
+      <time id="clock-time"></time>
+      <time id="clock-date"></time>
+    </section>
+
+    <!-- Timer Panel: 25-minute Pomodoro countdown -->
+    <section id="timer-panel">
+      <output id="timer-display">25:00</output>
+      <div id="timer-controls">
+        <button id="timer-start" type="button">Start</button>
+        <button id="timer-stop" type="button">Stop</button>
+        <button id="timer-reset" type="button">Reset</button>
+      </div>
+      <div id="timer-indicator" hidden>Session complete!</div>
+    </section>
+
+    <!-- Task Panel: to-do list with add, edit, complete, and delete -->
+    <section id="task-panel">
+      <div id="task-form">
+        <input
+          id="task-input"
+          type="text"
+          placeholder="Add a new task…"
+          maxlength="500"
+          aria-label="New task description"
+        />
+        <button id="task-add-btn" type="button">Add</button>
+      </div>
+      <span id="task-validation" role="alert"></span>
+      <ul id="task-list"></ul>
+      <p id="task-empty">No tasks yet. Add one above!</p>
+    </section>
+
+    <!-- Link Panel: quick-access link management -->
+    <section id="link-panel">
+      <div id="link-form">
+        <input
+          id="link-label-input"
+          type="text"
+          placeholder="Label"
+          maxlength="100"
+          aria-label="Link label"
+        />
+        <input
+          id="link-url-input"
+          type="url"
+          placeholder="https://example.com"
+          maxlength="2048"
+          aria-label="Link URL"
+        />
+        <button id="link-add-btn" type="button">Add</button>
+      </div>
+      <span id="link-validation" role="alert"></span>
+      <div id="link-list"></div>
+    </section>
+
+    <script src="js/app.js" defer></script>
+  </body>
+</html>
