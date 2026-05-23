@@ -40,14 +40,14 @@ Implement a zero-dependency, single-page productivity dashboard using plain HTML
     - Escape key on a focused toast dismisses it
     - _Requirements: 7.5, 8.4, 10.8, 12.4, 14.5_
 
-- [ ] 3. Implement GreetingModule in `js/app.js`
+- [x] 3. Implement GreetingModule in `js/app.js`
   - [x] 3.1 Implement pure helper functions for the greeting
     - Write `getGreeting(hour)`: returns `"Good Morning"` for hours 5–11, `"Good Afternoon"` for 12–17, `"Good Evening"` for 18–21, `"Good Night"` for 22–23 and 0–4
     - Write `formatTime(date)`: returns a zero-padded `"HH:MM"` string from a `Date` object
     - Write `formatDate(date)`: returns a string containing weekday name, numeric day, month name, and four-digit year (e.g., `"Monday, 26 May 2025"`)
     - _Requirements: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4_
 
-  - [ ] 3.2 Implement `GreetingModule.init()` and the render loop
+  - [x] 3.2 Implement `GreetingModule.init()` and the render loop
     - Write `GreetingModule.render()`: calls `new Date()` inside try/catch; on success updates `#greeting-text`, `#clock-time`, `#clock-date`; on catch sets `#clock-time` to `"--:--"` and `#clock-date` to `"--"`
     - Write `GreetingModule.init()`: calls `render()` immediately, then starts `setInterval(render, 60_000)`
     - Call `GreetingModule.init()` inside the `DOMContentLoaded` listener

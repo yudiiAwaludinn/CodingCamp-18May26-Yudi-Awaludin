@@ -1,0 +1,4 @@
+ERROR: Environment variable "env" is not found.
+INFO: Could not find "node".
+INFO: Could not find ";".
+INFO: Could not find "npm".

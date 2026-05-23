@@ -1,0 +1,16 @@
+{
+  "name": "todo-life-dashboard",
+  "version": "1.0.0",
+  "description": "Todo-Life Dashboard — a single-page productivity web application",
+  "main": "index.html",
+  "scripts": {
+    "test": "vitest --run"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "fast-check": "^3.23.2",
+    "vitest": "^2.2.5"
+  }
+}

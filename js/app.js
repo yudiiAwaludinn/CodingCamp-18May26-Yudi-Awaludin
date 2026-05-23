@@ -151,6 +151,20 @@ const Storage = {
 // ---------------------------------------------------------------------------
 
 /**
+ * Validate a username value read from localStorage.
+ * Returns the trimmed string if it is a string of 0–50 characters;
+ * otherwise returns '' as the safe default.
+ *
+ * @param {*} v
+ * @returns {string}
+ */
+function validateUsername(v) {
+  if (typeof v !== 'string') return '';
+  var trimmed = v.trim();
+  return trimmed.length <= 50 ? trimmed : '';
+}
+
+/**
  * Return a time-of-day greeting string based on the given hour (0–23).
  *
  * Mapping:
@@ -219,9 +233,11 @@ function formatDate(date) {
 
 // ---------------------------------------------------------------------------
 // GreetingModule — render loop
-// Requirements: 1.1, 1.3, 1.4, 2.5, 2.6
+// Requirements: 1.1, 1.3, 1.4, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 6.1, 6.2, 6.3, 6.4
 // ---------------------------------------------------------------------------
 const GreetingModule = {
+  /** @type {string} The current display name ('' if none set). */
+  userName: '',
   /**
    * Read the current time, update #greeting-text, #clock-time, #clock-date.
    * Wraps new Date() in try/catch; falls back to placeholder strings on error.
@@ -236,8 +252,9 @@ const GreetingModule = {
       var timeStr = formatTime(now);
       var dateStr = formatDate(now);
       var greeting = getGreeting(now.getHours());
+      var suffix = this.userName ? ', ' + this.userName + '!' : '';
 
-      if (greetingEl) greetingEl.textContent = greeting;
+      if (greetingEl) greetingEl.textContent = greeting + suffix;
 
       if (clockTimeEl) {
         // ISO datetime attribute for the <time> element (HH:MM)
@@ -262,14 +279,139 @@ const GreetingModule = {
 
   /**
    * Initialise the GreetingModule.
-   * Renders immediately, then schedules a re-render every 60 seconds.
+   * Loads the saved user name, renders immediately, then schedules a
+   * re-render every 60 seconds. Attaches listeners for the Name_Editor.
+   *
+   * Requirements: 2.1, 2.4, 2.8, 2.9
    */
   init() {
+    this.userName = this.loadName();
     this.render();
     var self = this;
     setInterval(function () {
       self.render();
     }, 60000);
+
+    // Name_Editor button listeners
+    var editBtn   = document.getElementById('name-edit-btn');
+    var saveBtn   = document.getElementById('name-save-btn');
+    var cancelBtn = document.getElementById('name-cancel-btn');
+    var nameInput = document.getElementById('name-input');
+
+    if (editBtn) {
+      editBtn.addEventListener('click', function () {
+        self.openEditor();
+      });
+    }
+    if (saveBtn) {
+      saveBtn.addEventListener('click', function () {
+        var input = document.getElementById('name-input');
+        self.saveName(input ? input.value : '');
+      });
+    }
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', function () {
+        self.closeEditor();
+      });
+    }
+    if (nameInput) {
+      // Clear validation message as the user types
+      nameInput.addEventListener('input', function () {
+        var validationEl = document.getElementById('name-validation');
+        if (validationEl) validationEl.textContent = '';
+      });
+      // Enter to save, Escape to cancel
+      nameInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          self.saveName(nameInput.value);
+        }
+        if (e.key === 'Escape') {
+          e.preventDefault();
+          self.closeEditor();
+        }
+      });
+    }
+  },
+
+  // ── Name_Editor methods ───────────────────────────────────────────────────
+
+  /**
+   * Read the saved user name from localStorage.
+   * Returns '' for any missing or invalid value; never throws.
+   *
+   * Requirements: 2.4, 6.1, 6.4
+   * @returns {string}
+   */
+  loadName() {
+    try {
+      var raw = Storage.load('tld_username');
+      if (raw === null) return '';
+      return validateUsername(raw);
+    } catch (e) {
+      return '';
+    }
+  },
+
+  /**
+   * Validate and persist a new user name, then re-render the greeting.
+   *
+   * - If name.trim().length > 50: shows inline validation message and returns.
+   * - If name.trim() is empty: clears tld_username from localStorage and sets
+   *   this.userName = ''.
+   * - Otherwise: saves tld_username and sets this.userName = trimmed name.
+   * Always calls this.render() and this.closeEditor() on success.
+   *
+   * Requirements: 2.2, 2.3, 2.6, 2.7
+   * @param {string} name
+   */
+  saveName(name) {
+    var trimmed = (typeof name === 'string') ? name.trim() : '';
+    var validationEl = document.getElementById('name-validation');
+
+    if (name.length > 50 || trimmed.length > 50) {
+      if (validationEl) validationEl.textContent = 'Name must be 50 characters or fewer.';
+      return;
+    }
+
+    if (trimmed.length === 0) {
+      // Clear the saved name
+      localStorage.removeItem('tld_username');
+      this.userName = '';
+    } else {
+      Storage.save('tld_username', trimmed);
+      this.userName = trimmed;
+    }
+
+    this.render();
+    this.closeEditor();
+  },
+
+  /**
+   * Show the Name_Editor panel and move focus to the name input.
+   *
+   * Requirements: 2.1, 2.8
+   */
+  openEditor() {
+    var editor = document.getElementById('name-editor');
+    var input  = document.getElementById('name-input');
+    if (editor) editor.removeAttribute('hidden');
+    if (input) {
+      input.value = this.userName;
+      input.focus();
+    }
+  },
+
+  /**
+   * Hide the Name_Editor panel and clear any validation message.
+   *
+   * Requirements: 2.9
+   */
+  closeEditor() {
+    var editor      = document.getElementById('name-editor');
+    var validationEl = document.getElementById('name-validation');
+    if (editor) editor.setAttribute('hidden', '');
+    if (validationEl) validationEl.textContent = '';
   }
 };
 
@@ -277,6 +419,19 @@ const GreetingModule = {
 // TimerModule — state, pure helpers, and render
 // Requirements: 3.1, 3.3, 4.5, 4.6, 4.7
 // ---------------------------------------------------------------------------
+
+/**
+ * Validate a duration value read from localStorage.
+ * Returns the integer value if it is a whole number in [1, 99];
+ * otherwise returns 25 as the safe default.
+ *
+ * @param {*} v
+ * @returns {number}
+ */
+function validateDuration(v) {
+  var n = Number(v);
+  return Number.isInteger(n) && n >= 1 && n <= 99 ? n : 25;
+}
 
 /**
  * Format a total number of seconds as a zero-padded "MM:SS" string.
@@ -292,9 +447,11 @@ function formatTimer(seconds) {
 
 const TimerModule = {
   // Internal state
-  // remaining: seconds left in the current session (1500 = 25 min)
+  // sessionMinutes: configured session length in minutes (default 25)
+  // remaining: seconds left in the current session
   // running:   true while the countdown interval is active
   // intervalId: handle returned by setInterval, or null when stopped
+  sessionMinutes: 25,
   remaining: 1500,
   running: false,
   intervalId: null,
@@ -352,15 +509,15 @@ const TimerModule = {
   },
 
   /**
-   * Reset the timer to the initial 25-minute state.
-   * Stops any active countdown, restores remaining to 1500,
+   * Reset the timer to the current session duration.
+   * Stops any active countdown, restores remaining to sessionMinutes * 60,
    * hides the end-of-session indicator, and updates the UI.
    *
-   * Requirements: 4.4
+   * Requirements: 4.4, 3.2
    */
   reset() {
     this.stop();
-    this.remaining = 1500;
+    this.remaining = this.sessionMinutes * 60;
     var indicator = document.getElementById('timer-indicator');
     if (indicator) indicator.hidden = true;
     this.render();
@@ -429,17 +586,22 @@ const TimerModule = {
 
   /**
    * Initialise the TimerModule.
-   * Renders the initial UI state and attaches click handlers to the
-   * Start, Stop, and Reset buttons.
+   * Loads the saved session duration, renders the initial UI state,
+   * and attaches click handlers to the Start, Stop, Reset, and Set buttons.
+   * Also attaches input/keydown listeners to #duration-input.
    *
-   * Requirements: 4.1, 4.7
+   * Requirements: 3.1, 3.4, 3.5, 4.1, 4.7
    */
   init() {
+    this.sessionMinutes = this.loadDuration();
+    this.remaining = this.sessionMinutes * 60;
     this.render();
 
     var btnStart = document.getElementById('timer-start');
     var btnStop  = document.getElementById('timer-stop');
     var btnReset = document.getElementById('timer-reset');
+    var btnDurationSet = document.getElementById('duration-set-btn');
+    var durationInput  = document.getElementById('duration-input');
 
     if (btnStart) {
       btnStart.addEventListener('click', function () {
@@ -456,6 +618,93 @@ const TimerModule = {
         TimerModule.reset();
       });
     }
+    if (btnDurationSet) {
+      btnDurationSet.addEventListener('click', function () {
+        var input = document.getElementById('duration-input');
+        TimerModule.applyDuration(input ? input.value : '');
+      });
+    }
+    if (durationInput) {
+      // Clear validation message as the user types
+      durationInput.addEventListener('input', function () {
+        var validationEl = document.getElementById('duration-validation');
+        if (validationEl) validationEl.textContent = '';
+      });
+      // Enter key triggers applyDuration
+      durationInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          TimerModule.applyDuration(durationInput.value);
+        }
+      });
+    }
+  },
+
+  // ── Duration methods ──────────────────────────────────────────────────────
+
+  /**
+   * Read the saved session duration from localStorage.
+   * Returns 25 for any missing or invalid value; never throws.
+   *
+   * Requirements: 3.4, 3.5, 6.1, 6.4
+   * @returns {number}
+   */
+  loadDuration() {
+    try {
+      var raw = Storage.load('tld_duration');
+      if (raw === null) return 25;
+      return validateDuration(raw);
+    } catch (e) {
+      return 25;
+    }
+  },
+
+  /**
+   * Persist the given session duration to localStorage.
+   *
+   * Requirements: 3.3, 6.1
+   * @param {number} minutes
+   */
+  saveDuration(minutes) {
+    Storage.save('tld_duration', minutes);
+  },
+
+  /**
+   * Stop any active countdown, set the session duration, and re-render.
+   *
+   * Requirements: 3.2, 3.8
+   * @param {number} minutes  Integer in [1, 99]
+   */
+  setDuration(minutes) {
+    this.stop();
+    this.sessionMinutes = minutes;
+    this.remaining = minutes * 60;
+    this.render();
+  },
+
+  /**
+   * Parse and validate raw input from the Duration_Input, then apply it.
+   * Rejects non-integers, decimals, empty strings, and values outside [1, 99].
+   * On rejection: sets #duration-validation text and returns without changing state.
+   * On success: clears #duration-validation, calls setDuration and saveDuration.
+   *
+   * Requirements: 3.1, 3.2, 3.3, 3.6, 3.7
+   * @param {string|number} raw
+   */
+  applyDuration(raw) {
+    var validationEl = document.getElementById('duration-validation');
+    var n = Number(raw);
+
+    if (!Number.isInteger(n) || n < 1 || n > 99) {
+      if (validationEl) {
+        validationEl.textContent = 'Please enter a whole number between 1 and 99.';
+      }
+      return;
+    }
+
+    if (validationEl) validationEl.textContent = '';
+    this.setDuration(n);
+    this.saveDuration(n);
   }
 };
 
@@ -999,9 +1248,103 @@ const LinkModule = {
 };
 
 // ---------------------------------------------------------------------------
+// ThemeModule — light / dark theme toggle
+// Requirements: 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.8, 1.9, 6.1, 6.2, 6.3, 6.4
+// ---------------------------------------------------------------------------
+
+/**
+ * Validate a theme value read from localStorage.
+ * Returns the value unchanged if it is 'dark' or 'light';
+ * otherwise returns 'dark' as the safe default.
+ *
+ * @param {*} v
+ * @returns {'dark'|'light'}
+ */
+function validateTheme(v) {
+  return (v === 'dark' || v === 'light') ? v : 'dark';
+}
+
+const ThemeModule = {
+  /** @type {'dark'|'light'} */
+  current: 'dark',
+
+  /**
+   * Read the saved theme from localStorage.
+   * Returns 'dark' for any missing or invalid value; never throws.
+   *
+   * @returns {'dark'|'light'}
+   */
+  load() {
+    try {
+      var raw = Storage.load('tld_theme');
+      return validateTheme(raw);
+    } catch (e) {
+      return 'dark';
+    }
+  },
+
+  /**
+   * Apply the given theme to the document and update the toggle button.
+   * Sets data-theme on <html>; updates #theme-toggle aria-label and text.
+   *
+   * @param {'dark'|'light'} theme
+   */
+  apply(theme) {
+    document.documentElement.setAttribute('data-theme', theme);
+
+    var btn = document.getElementById('theme-toggle');
+    if (btn) {
+      if (theme === 'dark') {
+        btn.setAttribute('aria-label', 'Switch to Light Mode');
+        btn.setAttribute('title', 'Switch to Light Mode');
+        btn.textContent = '🌙';
+      } else {
+        btn.setAttribute('aria-label', 'Switch to Dark Mode');
+        btn.setAttribute('title', 'Switch to Dark Mode');
+        btn.textContent = '☀️';
+      }
+    }
+  },
+
+  /**
+   * Persist the current theme to localStorage via Storage.save.
+   */
+  save() {
+    Storage.save('tld_theme', this.current);
+  },
+
+  /**
+   * Toggle between 'dark' and 'light', then apply and save.
+   */
+  toggle() {
+    this.current = this.current === 'dark' ? 'light' : 'dark';
+    this.apply(this.current);
+    this.save();
+  },
+
+  /**
+   * Initialise the ThemeModule.
+   * Loads the saved theme, applies it immediately (before any other module
+   * renders) to prevent FOUC, then attaches a click listener to #theme-toggle.
+   */
+  init() {
+    this.current = this.load();
+    this.apply(this.current);
+
+    var btn = document.getElementById('theme-toggle');
+    if (btn) {
+      btn.addEventListener('click', function () {
+        ThemeModule.toggle();
+      });
+    }
+  }
+};
+
+// ---------------------------------------------------------------------------
 // DOMContentLoaded — bootstrap all modules
 // ---------------------------------------------------------------------------
 document.addEventListener('DOMContentLoaded', function () {
+  ThemeModule.init(); // MUST be first to prevent FOUC
   GreetingModule.init();
   TimerModule.init();
   TaskModule.init();

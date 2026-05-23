@@ -8,11 +8,20 @@
   </head>
   <body>
 
+    <button id="theme-toggle" type="button" aria-label="Switch to Light Mode" title="Switch to Light Mode">🌙</button>
+
     <!-- Greeting Panel: time, date, and contextual greeting -->
     <section id="greeting-panel">
       <p id="greeting-text"></p>
       <time id="clock-time"></time>
       <time id="clock-date"></time>
+      <button id="name-edit-btn" type="button" aria-label="Set your name">✏️ Set Name</button>
+      <div id="name-editor" hidden>
+        <input id="name-input" type="text" maxlength="50" placeholder="Your name…" aria-label="Your display name" />
+        <button id="name-save-btn" type="button">Save</button>
+        <button id="name-cancel-btn" type="button">Cancel</button>
+        <span id="name-validation" role="alert"></span>
+      </div>
     </section>
 
     <!-- Timer Panel: 25-minute Pomodoro countdown -->
@@ -24,6 +33,12 @@
         <button id="timer-reset" type="button">Reset</button>
       </div>
       <div id="timer-indicator" hidden>Session complete!</div>
+      <div id="duration-form">
+        <label for="duration-input">Session (min):</label>
+        <input id="duration-input" type="number" min="1" max="99" step="1" value="25" aria-label="Session duration in minutes" />
+        <button id="duration-set-btn" type="button">Set</button>
+        <span id="duration-validation" role="alert"></span>
+      </div>
     </section>
 
     <!-- Task Panel: to-do list with add, edit, complete, and delete -->
@@ -39,6 +54,11 @@
         <button id="task-add-btn" type="button">Add</button>
       </div>
       <span id="task-validation" role="alert"></span>
+      <div id="sort-controls" role="group" aria-label="Sort tasks by">
+        <button class="sort-btn sort-btn--active" data-sort="creation" type="button">Creation</button>
+        <button class="sort-btn" data-sort="alpha" type="button">A→Z</button>
+        <button class="sort-btn" data-sort="status" type="button">Status</button>
+      </div>
       <ul id="task-list"></ul>
       <p id="task-empty">No tasks yet. Add one above!</p>
     </section>
