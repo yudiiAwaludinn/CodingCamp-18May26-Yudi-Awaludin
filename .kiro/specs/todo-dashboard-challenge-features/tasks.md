@@ -119,8 +119,8 @@ Implement five challenge features — Light/Dark Theme Toggle, Custom User Name 
 - [ ] 7. Checkpoint — Timer duration feature complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 8. Add duplicate-task prevention to `TaskModule` in `js/app.js`
-  - [ ] 8.1 Add `isDuplicate` helper and update `addTask` and `editTask` in `TaskModule`
+- [x] 8. Add duplicate-task prevention to `TaskModule` in `js/app.js`
+  - [x] 8.1 Add `isDuplicate` helper and update `addTask` and `editTask` in `TaskModule`
     - Add `isDuplicate(description, excludeId)`: returns `true` if any task (other than `excludeId`) has `task.description.trim().toLowerCase() === description.trim().toLowerCase()`
     - Update `addTask(description)`: after existing `validateDescription` check, call `this.isDuplicate(description, null)`; if true set `#task-validation` text to `'A task with that description already exists.'` and return without clearing the input field
     - Update `editTask(id, newDescription, inlineMsgEl)`: after existing `validateDescription` check, call `this.isDuplicate(newDescription, id)`; if true set `inlineMsgEl.textContent` and return without modifying the task
@@ -145,8 +145,8 @@ Implement five challenge features — Light/Dark Theme Toggle, Custom User Name 
     - Use `fc.string({ minLength: 1, maxLength: 100 }).filter(s => s.trim().length > 0)`
     - **Validates: Requirements 4.8**
 
-- [ ] 9. Add sort controls to `TaskModule` in `js/app.js`
-  - [ ] 9.1 Add `sortOrder`, `loadSort`, `saveSort`, `getSortedTasks`, and `updateSortUI` to `TaskModule`; update `renderList`
+- [x] 9. Add sort controls to `TaskModule` in `js/app.js`
+  - [x] 9.1 Add `sortOrder`, `loadSort`, `saveSort`, `getSortedTasks`, and `updateSortUI` to `TaskModule`; update `renderList`
     - `loadSort()`: reads `tld_sort` via `Storage.load`; validates with `validateSort(v)`; returns `'creation'` for missing/invalid/unreadable values; never throws
     - `saveSort(order)`: calls `Storage.save('tld_sort', order)`
     - `getSortedTasks()`: returns a sorted copy of `this.tasks` — `'creation'`: `[...this.tasks]`; `'alpha'`: sort by `description.toLowerCase()` using `localeCompare`; `'status'`: incomplete tasks first (creation order within group), then complete tasks (creation order within group)
@@ -170,8 +170,8 @@ Implement five challenge features — Light/Dark Theme Toggle, Custom User Name 
 - [ ] 10. Checkpoint — Duplicate prevention and sort features complete
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 11. Add preference validation helpers and wire all persistence in `js/app.js`
-  - [ ] 11.1 Add `validateTheme`, `validateUsername`, `validateDuration`, and `validateSort` pure functions
+- [x] 11. Add preference validation helpers and wire all persistence in `js/app.js`
+  - [x] 11.1 Add `validateTheme`, `validateUsername`, `validateDuration`, and `validateSort` pure functions
     - `validateTheme(v)`: returns `v` if `v === 'dark' || v === 'light'`; otherwise returns `'dark'`
     - `validateUsername(v)`: returns `''` if `typeof v !== 'string'`; trims `v`; returns trimmed value if `trimmed.length <= 50`; otherwise returns `''`
     - `validateDuration(v)`: converts to `Number`; returns `v` if `Number.isInteger(n) && n >= 1 && n <= 99`; otherwise returns `25`
@@ -185,8 +185,8 @@ Implement five challenge features — Light/Dark Theme Toggle, Custom User Name 
     - Use `fc.record({ theme: fc.string(), duration: fc.oneof(fc.string(), fc.float()), sort: fc.string(), username: fc.anything() })`
     - **Validates: Requirements 6.4, 1.9, 3.5, 5.5**
 
-- [ ] 12. Add CSS styles for all new controls in `css/styles.css`
-  - [ ] 12.1 Add styles for `#name-editor`, `#duration-form`, `#sort-controls`, and sort button active state
+- [x] 12. Add CSS styles for all new controls in `css/styles.css`
+  - [x] 12.1 Add styles for `#name-editor`, `#duration-form`, `#sort-controls`, and sort button active state
     - Style `#name-editor` as an inline flex row (input + Save + Cancel + validation span); hidden by default via `[hidden]`
     - Style `#duration-form` as an inline flex row (label + number input + Set button + validation span)
     - Style `#sort-controls` as a flex row of three `sort-btn` buttons; `sort-btn--active` uses `--color-accent` background with `--color-accent-text` foreground
@@ -194,7 +194,7 @@ Implement five challenge features — Light/Dark Theme Toggle, Custom User Name 
     - Ensure no horizontal overflow at 320 px viewport width (flex-wrap where needed)
     - _Requirements: 1.7, 5.8, 7.3, 7.4_
 
-- [ ] 13. Final checkpoint — All features integrated and all tests pass
+- [x] 13. Final checkpoint — All features integrated and all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ---

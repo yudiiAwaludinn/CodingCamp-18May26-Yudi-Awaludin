@@ -200,7 +200,8 @@ function getGreeting(hour) {
 function formatTime(date) {
   var hours   = String(date.getHours()).padStart(2, '0');
   var minutes = String(date.getMinutes()).padStart(2, '0');
-  return hours + ':' + minutes;
+  var seconds = String(date.getSeconds()).padStart(2, '0');
+  return hours + ':' + minutes + ':' + seconds;
 }
 
 /**
@@ -290,7 +291,7 @@ const GreetingModule = {
     var self = this;
     setInterval(function () {
       self.render();
-    }, 60000);
+    }, 1000);
 
     // Name_Editor button listeners
     var editBtn   = document.getElementById('name-edit-btn');
@@ -714,6 +715,18 @@ const TimerModule = {
 // ---------------------------------------------------------------------------
 
 /**
+ * Validate a sort order value read from localStorage.
+ * Returns the value unchanged if it is one of the three valid sort orders;
+ * otherwise returns 'creation' as the safe default.
+ *
+ * @param {*} v
+ * @returns {'creation'|'alpha'|'status'}
+ */
+function validateSort(v) {
+  return ['creation', 'alpha', 'status'].includes(v) ? v : 'creation';
+}
+
+/**
  * Validate a task description string.
  * Returns { valid: false, message: '...' } for empty/whitespace-only strings
  * and strings over 500 characters; returns { valid: true } otherwise.
@@ -734,6 +747,9 @@ function validateDescription(str) {
 const TaskModule = {
   /** @type {Array<{ id: string, description: string, completed: boolean }>} */
   tasks: [],
+
+  /** @type {'creation'|'alpha'|'status'} The active sort order. */
+  sortOrder: 'creation',
 
   // ── Persistence ──────────────────────────────────────────────────────────
 
@@ -772,7 +788,8 @@ const TaskModule = {
       listEl.removeChild(listEl.firstChild);
     }
 
-    this.tasks.forEach(function (task) {
+    var sorted = this.getSortedTasks();
+    sorted.forEach(function (task) {
       listEl.appendChild(TaskModule.renderTask(task, false));
     });
 
@@ -843,6 +860,11 @@ const TaskModule = {
         if (e.key === 'Escape') { e.preventDefault(); doCancel(); }
       });
 
+      // Clear inline duplicate message as the user types (requirement 4.7)
+      editInput.addEventListener('input', function () {
+        inlineMsg.textContent = '';
+      });
+
       li.appendChild(editInput);
       li.appendChild(inlineMsg);
       li.appendChild(saveBtn);
@@ -891,6 +913,24 @@ const TaskModule = {
   // ── CRUD operations ───────────────────────────────────────────────────────
 
   /**
+   * Check whether any task (other than the one with excludeId) has a
+   * description that matches the given string after trimming and
+   * lowercasing both sides.
+   *
+   * Requirements: 4.1, 4.5, 4.8
+   *
+   * @param {string} description
+   * @param {string|null} excludeId  — id of the task being edited, or null when adding
+   * @returns {boolean}
+   */
+  isDuplicate(description, excludeId) {
+    var normalised = description.trim().toLowerCase();
+    return this.tasks.some(function (t) {
+      return t.id !== excludeId && t.description.trim().toLowerCase() === normalised;
+    });
+  },
+
+  /**
    * Add a new task.
    * Validates description; on failure shows message in #task-validation.
    * On success appends task, saves, re-renders, clears input.
@@ -904,6 +944,11 @@ const TaskModule = {
     if (!result.valid) {
       if (validationEl) validationEl.textContent = result.message;
       return;
+    }
+
+    if (this.isDuplicate(description, null)) {
+      if (validationEl) validationEl.textContent = 'A task with that description already exists.';
+      return; // input field is NOT cleared
     }
 
     if (validationEl) validationEl.textContent = '';
@@ -959,12 +1004,91 @@ const TaskModule = {
       return;
     }
 
+    if (this.isDuplicate(newDescription, id)) {
+      if (inlineMsgEl) inlineMsgEl.textContent = 'A task with that description already exists.';
+      return;
+    }
+
     var task = this.tasks.find(function (t) { return t.id === id; });
     if (task) {
       task.description = newDescription.trim();
       this.saveTasks();
       this.renderList();
     }
+  },
+
+  // ── Sort methods ──────────────────────────────────────────────────────────
+
+  /**
+   * Read the saved sort order from localStorage.
+   * Returns 'creation' for any missing or invalid value; never throws.
+   *
+   * Requirements: 5.3, 5.4, 5.5, 6.1, 6.4
+   * @returns {'creation'|'alpha'|'status'}
+   */
+  loadSort() {
+    try {
+      var raw = Storage.load('tld_sort');
+      if (raw === null) return 'creation';
+      return validateSort(raw);
+    } catch (e) {
+      return 'creation';
+    }
+  },
+
+  /**
+   * Persist the given sort order to localStorage.
+   *
+   * Requirements: 5.3, 6.1
+   * @param {'creation'|'alpha'|'status'} order
+   */
+  saveSort(order) {
+    Storage.save('tld_sort', order);
+  },
+
+  /**
+   * Return a sorted copy of this.tasks according to this.sortOrder.
+   *
+   * - 'creation': original insertion order ([...this.tasks])
+   * - 'alpha': ascending case-insensitive lexicographic order by description
+   * - 'status': incomplete tasks first (creation order within group),
+   *             then complete tasks (creation order within group)
+   *
+   * Requirements: 5.1, 5.2, 5.6, 5.7
+   * @returns {Array<{ id: string, description: string, completed: boolean }>}
+   */
+  getSortedTasks() {
+    var copy = this.tasks.slice();
+    if (this.sortOrder === 'alpha') {
+      copy.sort(function (a, b) {
+        return a.description.toLowerCase().localeCompare(b.description.toLowerCase());
+      });
+    } else if (this.sortOrder === 'status') {
+      copy.sort(function (a, b) {
+        // Incomplete (false) before complete (true); stable within each group
+        if (a.completed === b.completed) return 0;
+        return a.completed ? 1 : -1;
+      });
+    }
+    // 'creation' — return the copy in original insertion order (no sort needed)
+    return copy;
+  },
+
+  /**
+   * Update the visual active state of the sort buttons.
+   * Adds 'sort-btn--active' to the button whose data-sort matches
+   * this.sortOrder; removes it from all others.
+   *
+   * Requirements: 5.8
+   */
+  updateSortUI() {
+    document.querySelectorAll('.sort-btn').forEach(function (btn) {
+      if (btn.dataset.sort === TaskModule.sortOrder) {
+        btn.classList.add('sort-btn--active');
+      } else {
+        btn.classList.remove('sort-btn--active');
+      }
+    });
   },
 
   // ── Initialisation ────────────────────────────────────────────────────────
@@ -975,7 +1099,9 @@ const TaskModule = {
    */
   init() {
     this.loadTasks();
+    this.sortOrder = this.loadSort();
     this.renderList();
+    this.updateSortUI();
 
     var addBtn  = document.getElementById('task-add-btn');
     var inputEl = document.getElementById('task-input');
@@ -1001,6 +1127,16 @@ const TaskModule = {
         }
       });
     }
+
+    // Attach sort button listeners
+    document.querySelectorAll('.sort-btn').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        TaskModule.sortOrder = btn.dataset.sort;
+        TaskModule.saveSort(TaskModule.sortOrder);
+        TaskModule.renderList();
+        TaskModule.updateSortUI();
+      });
+    });
   }
 };
 

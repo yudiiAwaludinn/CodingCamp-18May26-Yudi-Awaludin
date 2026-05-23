@@ -1047,3 +1047,292 @@ body {
     border-radius: var(--radius-full);
   }
 }
+
+/* ===========================================================================
+   14. Name Editor — #name-editor
+   Inline flex row: text input + Save + Cancel + validation span.
+   Hidden by default via the [hidden] attribute; shown when JS removes it.
+   Requirements: 1.7, 5.8, 7.3, 7.4
+   =========================================================================== */
+
+/* Use :not([hidden]) so the flex display is only applied when visible,
+   preventing the flex rule from overriding the [hidden] attribute's
+   implicit display:none. */
+#name-editor:not([hidden]) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+}
+
+/* Name text input — grows to fill available space */
+#name-input {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+
+/* Save and Cancel buttons share a compact pill-like style */
+#name-save-btn,
+#name-cancel-btn {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
+}
+
+#name-save-btn {
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+}
+#name-save-btn:hover {
+  background-color: var(--color-accent-hover);
+}
+
+#name-cancel-btn {
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+}
+#name-cancel-btn:hover {
+  background-color: var(--color-border);
+  color: var(--color-text);
+}
+
+/* Inline validation message */
+#name-validation {
+  flex-basis: 100%;   /* push to its own line when wrapping */
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  min-height: 1em;
+  line-height: 1.4;
+}
+
+/* WCAG 2.1 AA focus rings — accent-bg Save button uses white outline */
+#name-save-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}
+
+#name-cancel-btn:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}
+
+/* Fallback for browsers without :focus-visible support */
+@supports not selector(:focus-visible) {
+  #name-save-btn:focus {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+    border-radius: var(--radius-md);
+  }
+  #name-cancel-btn:focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ===========================================================================
+   15. Duration Form — #duration-form
+   Inline flex row: label + number input + Set button + validation span.
+   Always visible inside #timer-panel (no hidden attribute).
+   Requirements: 1.7, 5.8, 7.3, 7.4
+   =========================================================================== */
+
+#duration-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  width: 100%;
+  justify-content: center;
+}
+
+/* Label — shrink-proof */
+#duration-form label {
+  flex-shrink: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+/* Number input — fixed comfortable width; override global width:100% */
+#duration-input {
+  flex: 0 0 5rem;
+  width: 5rem;
+  min-width: 0;
+  text-align: center;
+}
+
+/* Set button */
+#duration-set-btn {
+  flex-shrink: 0;
+  padding: var(--space-2) var(--space-4);
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background-color var(--transition-fast);
+}
+#duration-set-btn:hover {
+  background-color: var(--color-accent-hover);
+}
+
+/* Inline validation message */
+#duration-validation {
+  flex-basis: 100%;   /* push to its own line when wrapping */
+  font-size: var(--text-xs);
+  color: var(--color-danger);
+  min-height: 1em;
+  line-height: 1.4;
+  text-align: center;
+}
+
+/* WCAG 2.1 AA focus ring — accent-bg Set button uses white outline */
+#duration-set-btn:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: var(--radius-md);
+}
+
+/* Fallback for browsers without :focus-visible support */
+@supports not selector(:focus-visible) {
+  #duration-set-btn:focus {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+    border-radius: var(--radius-md);
+  }
+}
+
+/* ===========================================================================
+   16. Sort Controls — #sort-controls
+   Flex row of three .sort-btn buttons; visually grouped with shared borders.
+   .sort-btn--active uses --color-accent background with --color-accent-text.
+   Requirements: 1.7, 5.8, 7.3, 7.4
+   =========================================================================== */
+
+#sort-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0;                    /* buttons share borders — no gap between them */
+  align-items: center;
+}
+
+/* Base sort button */
+.sort-btn {
+  flex: 1 1 auto;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+  background-color: var(--color-surface-alt);
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-border);
+  /* Remove default border-radius; apply only to first/last */
+  border-radius: 0;
+  transition:
+    background-color var(--transition-fast),
+    color var(--transition-fast),
+    border-color var(--transition-fast);
+  /* Collapse adjacent borders */
+  margin-left: -1px;
+}
+
+/* First button — rounded left corners */
+.sort-btn:first-child {
+  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  margin-left: 0;
+}
+
+/* Last button — rounded right corners */
+.sort-btn:last-child {
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+}
+
+/* Hover state — non-active buttons */
+.sort-btn:not(.sort-btn--active):hover {
+  background-color: var(--color-border);
+  color: var(--color-text);
+  border-color: var(--color-accent);
+  z-index: 1;
+  position: relative;
+}
+
+/* Active sort button — accent background with contrasting text */
+.sort-btn--active {
+  background-color: var(--color-accent);
+  color: var(--color-accent-text);
+  border-color: var(--color-accent);
+  z-index: 2;
+  position: relative;
+}
+.sort-btn--active:hover {
+  background-color: var(--color-accent-hover);
+  border-color: var(--color-accent-hover);
+}
+
+/* WCAG 2.1 AA focus rings */
+/* Active sort button (accent bg) — white outline for contrast */
+.sort-btn--active:focus-visible {
+  outline: 2px solid #fff;
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+  z-index: 3;
+}
+
+/* Inactive sort button (surface-alt bg) — accent outline */
+.sort-btn:not(.sort-btn--active):focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: var(--radius-sm);
+  z-index: 3;
+  position: relative;
+}
+
+/* Fallback for browsers without :focus-visible support */
+@supports not selector(:focus-visible) {
+  .sort-btn--active:focus {
+    outline: 2px solid #fff;
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+    z-index: 3;
+  }
+  .sort-btn:not(.sort-btn--active):focus {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+    z-index: 3;
+    position: relative;
+  }
+}
+
+/* At 320 px viewport, allow sort buttons to wrap onto multiple lines
+   so they never cause horizontal overflow. */
+@media (max-width: 320px) {
+  #sort-controls {
+    flex-wrap: wrap;
+  }
+
+  .sort-btn {
+    flex: 1 1 100%;
+    margin-left: 0;
+    border-radius: 0;
+  }
+
+  .sort-btn:first-child {
+    border-radius: var(--radius-md) var(--radius-md) 0 0;
+  }
+
+  .sort-btn:last-child {
+    border-radius: 0 0 var(--radius-md) var(--radius-md);
+  }
+}
